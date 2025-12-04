@@ -80,7 +80,7 @@ The function writes several CSV files to output_dir:
 
 | File                        | Description                                                                        |
 | --------------------------- | ---------------------------------------------------------------------------------- |
-| `all_peaks.csv`             | All detected peaks, rows = samples, columns = peak heights.                        |
+| `all_peaks.csv`             | All detected peaks, rows = samples, columns = peak areas.                          |
 | `auto_candidates.csv`       | Candidate peaks selected by automatic screening (or all peaks if skipped).         |
 | `verified_cardenolides.csv` | Manual verification results with RT, Y/N, and notes (if manual verification used). |
 | `raw_cards.csv`             | Final cardenolide table, only peaks confirmed as cardenolides.                     |
