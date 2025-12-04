@@ -1,0 +1,20 @@
+Package: cardenolideR
+Type: Package
+Title: Identify Cardenolides from LC-MS Data
+Version: 0.1.0
+Authors@R: person("Nathaniel", "Carlson", email = "nathaniel.carlson@utah.edu", role = c("aut", "cre"))
+Description: Tools for identifying cardenolides or similar compounds from LC-MS chromatograms.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports:
+    chromatographR,
+    chromConverter,
+    plotly,
+    htmlwidgets,
+    parallel,
+    utils
+Remotes:
+    ethanbass/chromatographR,
+    ethanbass/chromConverter
+RoxygenNote: 7.3.3
