@@ -91,9 +91,3 @@ If you use cardenolideR in your work, please also cite chromatographR:
 
 Bass, E. (2023). chromatographR: Chromatographic Data Analysis Toolset (version 0.7.3). http://doi.org/10.5281/zenodo.6944334
 
-Notes
-Use skip_auto_screen = TRUE to bypass automatic filtering and manually inspect all peaks.
-
-Interactive spectra plots are generated with Plotly for manual verification.
-
-Always check that input_dir contains properly formatted chromatograms supported by chromatographR.
