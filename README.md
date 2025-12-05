@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # cardenolideR
 
 An R package for identifying cardenolides from HPLC chromatogram files.
