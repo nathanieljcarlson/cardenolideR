@@ -2,7 +2,7 @@
 #'
 #' Reads chromatograms, preprocesses them, optionally performs PTW warping,
 #' identifies candidate cardenolides based on absorption spectra, and allows
-#' manual verification with notes. Exports CSV files with results.
+#' manual verification with notes. Exports CSV files and HTML absorbance spectra.
 #'
 #' @title Identify cardenolides from HPLC chromatograms
 #' @description Tools for detecting cardenolides or similar compounds from HPLC data.
@@ -27,10 +27,12 @@
 #'     \item auto_candidates - data.frame of automatically selected candidate peaks with sample IDs as row names
 #'     \item final_peaks - data.frame of peaks identified as cardenolides with sample IDs as row names
 #'     \item verified_df - manual verification data (if manual verification used)
+#'     \item spectra_dir - directory containing exported HTML absorbance spectra
 #'   }
 #' @importFrom plotly %>%
 #' @importFrom plotly layout
 #' @importFrom utils write.csv
+#' @importFrom htmlwidgets saveWidget
 #' @export
 ID_cardenolides <- function(
     input_dir = getwd(),
@@ -54,6 +56,10 @@ ID_cardenolides <- function(
   # CREATE OUTPUT DIRECTORY
   #-------------------------
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+
+  # Create subdirectory for absorbance spectra HTML exports
+  spectra_dir <- file.path(output_dir, "absorbance_spectra")
+  dir.create(spectra_dir, showWarnings = FALSE, recursive = TRUE)
 
   #-------------------------
   # STEP 1: READ CHROMATOGRAMS
@@ -124,6 +130,43 @@ ID_cardenolides <- function(
   }
 
   message("Found ", ncol(pktab[[1]]), " peaks within the retention time range")
+
+  #-------------------------
+  # NEW STEP: EXPORT HTML ABSORBANCE SPECTRA FOR ALL PEAKS
+  #-------------------------
+  message("Exporting HTML absorbance spectra for all peaks...")
+
+  # Get all peak names
+  all_peak_names <- colnames(pktab[[1]])
+
+  for(i in seq_along(all_peak_names)) {
+    peak_name <- all_peak_names[i]
+    rt <- rt_values[i]
+
+    tryCatch({
+      # Generate the plotly absorbance spectrum using the same call
+      p <- chromatographR::plot_all_spectra(
+        peak_name,
+        peak_table = pktab,
+        chrom_list = warp,
+        export_spectrum = FALSE,
+        scale_spectrum = FALSE,
+        verbose = FALSE,
+        plot_spectrum = TRUE,
+        engine = "plotly"
+      )
+
+      # Save as HTML file
+      safe_peak_name <- gsub("[^A-Za-z0-9.-]", "_", peak_name)
+      html_file <- file.path(spectra_dir, paste0("spectrum_", safe_peak_name, "_RT", round(rt, 2), ".html"))
+      htmlwidgets::saveWidget(p, html_file, selfcontained = TRUE)
+
+    }, error = function(e) {
+      warning("Failed to export absorbance spectrum for peak ", peak_name, ": ", e$message)
+    })
+  }
+
+  message("Absorbance spectra saved to: ", spectra_dir)
 
   # Create data frame with row names for R object
   all_peaks_df <- pktab[[1]]
@@ -279,6 +322,7 @@ ID_cardenolides <- function(
     all_peaks = all_peaks,           # Has row names, not SampleID column
     auto_candidates = candidate_output,  # Has row names, not SampleID column
     final_peaks = final_tab,         # Has row names, not SampleID column
-    verified_df = if(do_manual_verification) verified_df else NULL
+    verified_df = if(do_manual_verification) verified_df else NULL,
+    spectra_dir = spectra_dir
   ))
 }

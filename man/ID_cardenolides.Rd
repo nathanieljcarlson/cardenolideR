@@ -60,6 +60,7 @@ A list containing:
     \item auto_candidates - data.frame of automatically selected candidate peaks with sample IDs as row names
     \item final_peaks - data.frame of peaks identified as cardenolides with sample IDs as row names
     \item verified_df - manual verification data (if manual verification used)
+    \item spectra_dir - directory containing exported HTML absorbance spectra
   }
 }
 \description{
@@ -70,5 +71,5 @@ Identify cardenolides from HPLC chromatograms
 
 Reads chromatograms, preprocesses them, optionally performs PTW warping,
 identifies candidate cardenolides based on absorption spectra, and allows
-manual verification with notes. Exports CSV files with results.
+manual verification with notes. Exports CSV files and HTML absorbance spectra.
 }
