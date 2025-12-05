@@ -87,7 +87,7 @@ A list containing:
 
 `verified_df` – manual verification data (`if do_manual_verification = TRUE`). Includes RT, Cardenolide (Y/N), and Notes columns.
 
-## Output File
+## Output Files
 The function writes several CSV files to output_dir:
 
 | File                        | Description                                                                        |
