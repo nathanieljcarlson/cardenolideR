@@ -14,7 +14,10 @@
 #' @param do_ptw Whether to perform PTW retention time warping (default TRUE)
 #' @param do_baseline Whether to perform baseline correction (default FALSE)
 #' @param do_manual_verification Whether to manually verify peaks (default FALSE)
+#' @param minor_peak_max Maximum size of minor peak (outside target lambda) for inclusion (default 0.25)
 #' @param skip_auto_screen Skip automatic screening and go straight to manual (default FALSE)
+#' @param rt_range_min Minimum retention time to consider (in minutes, default 0)
+#' @param rt_range_max Maximum retention time to consider (in minutes, default 40)
 #' @param new_ts Retention time sequence for preprocessing
 #' @param new_lambdas Wavelength sequence for preprocessing
 #' @param n_cores Number of CPU cores for parallel processing (default 4)
@@ -40,6 +43,8 @@ ID_cardenolides <- function(
     do_manual_verification = FALSE,
     minor_peak_max = 0.25,
     skip_auto_screen = FALSE,
+    rt_range_min = 0,
+    rt_range_max = 40,
     new_ts = seq(.01, 39.95, by=.01),
     new_lambdas = seq(200, 318, by=2),
     n_cores = 4
@@ -62,13 +67,26 @@ ID_cardenolides <- function(
   }
 
   #-------------------------
-  # STEP 2: PREPROCESS
+  # STEP 2: ADJUST TIME SEQUENCE BASED ON RT RANGE
+  #-------------------------
+  # Filter new_ts to only include times within rt_range
+  new_ts <- new_ts[new_ts >= rt_range_min & new_ts <= rt_range_max]
+
+  if(length(new_ts) < 2) {
+    stop("rt_range_min and rt_range_max result in too few time points. Please adjust your range.")
+  }
+
+  message("Using retention time range: ", rt_range_min, " to ", rt_range_max, " minutes")
+  message("Time sequence length: ", length(new_ts), " points")
+
+  #-------------------------
+  # STEP 3: PREPROCESS
   #-------------------------
   message("Preprocessing chromatograms...")
   dat.pr <- chromatographR::preprocess(x, new_ts, new_lambdas)
 
   #-------------------------
-  # STEP 3: PTW WARPING (OPTIONAL)
+  # STEP 4: PTW WARPING (OPTIONAL)
   #-------------------------
   if(do_ptw){
     message("Building PTW warping models...")
@@ -82,33 +100,62 @@ ID_cardenolides <- function(
   }
 
   #-------------------------
-  # STEP 4: READ PEAK LISTS
+  # STEP 5: READ AND FILTER PEAK LISTS
   #-------------------------
   message("Reading peak reports...")
   pks <- chromConverter::read_peaklist(input_dir)
 
-  if(do_ptw){
-    message("Correcting peak retention times...")
-    pks.cor <- chromatographR::correct_peaks(pks, warping.models, chrom_list = dat.pr)
-    peaks_for_table <- pks.cor
-  } else {
-    peaks_for_table <- pks
+  # Filter peaks based on retention time range
+  message("Filtering peaks to retention time range: ", rt_range_min, "-", rt_range_max, " minutes")
+  pks_filtered <- lapply(pks, function(sample_peaks) {
+    # Keep only peaks within the specified RT range
+    sample_peaks[sample_peaks$RT >= rt_range_min & sample_peaks$RT <= rt_range_max, ]
+  })
+
+  # Remove samples with no peaks after filtering
+  pks_filtered <- pks_filtered[sapply(pks_filtered, nrow) > 0]
+
+  if(length(pks_filtered) == 0) {
+    stop("No peaks found within the specified retention time range. Please adjust rt_range_min and rt_range_max.")
   }
 
   #-------------------------
-  # STEP 5: BUILD PEAK TABLE
+  # STEP 6: CORRECT PEAK RETENTION TIMES (OPTIONAL)
+  #-------------------------
+  if(do_ptw){
+    message("Correcting peak retention times...")
+    pks.cor <- chromatographR::correct_peaks(pks_filtered, warping.models, chrom_list = dat.pr)
+    peaks_for_table <- pks.cor
+  } else {
+    peaks_for_table <- pks_filtered
+  }
+
+  #-------------------------
+  # STEP 7: BUILD PEAK TABLE
   #-------------------------
   message("Building peak table...")
   pktab <- chromatographR::get_peaktable(peaks_for_table, use.cor = do_ptw)
   pktab$args$chrom_list <- "warp"
   pktab <- chromatographR::filter_peaktable(pktab, lambda = as.character(peak_lambda))
 
+  # Double-check that all peaks are within RT range (safety check)
+  rt_values <- as.numeric(pktab[[2]][3, ])
+  peaks_in_range <- rt_values >= rt_range_min & rt_values <= rt_range_max
+
+  if(!all(peaks_in_range)) {
+    warning("Some peaks are outside the specified RT range. Filtering them out.")
+    pktab[[1]] <- pktab[[1]][, peaks_in_range, drop = FALSE]
+    pktab[[2]] <- pktab[[2]][, peaks_in_range, drop = FALSE]
+    rt_values <- rt_values[peaks_in_range]
+  }
+
+  message("Found ", ncol(pktab[[1]]), " peaks within the retention time range")
+
   # Create data frame with row names for R object
   all_peaks_df <- pktab[[1]]
-  colnames(all_peaks_df) <- as.numeric(pktab[[2]][3,])
+  colnames(all_peaks_df) <- rt_values
 
   # Export CSV with SampleID as first column for file export
-  # FIXED: Removed row.names = FALSE from inside data.frame() call
   write.csv(data.frame(SampleID = rownames(all_peaks_df), all_peaks_df,
                        check.names = FALSE),
             file.path(output_dir, "all_peaks.csv"), row.names = FALSE)
@@ -117,7 +164,7 @@ ID_cardenolides <- function(
   all_peaks <- all_peaks_df  # This has row names, not SampleID column
 
   #-------------------------
-  # STEP 6: AUTO-SCREEN (OPTIONAL)
+  # STEP 8: AUTO-SCREEN (OPTIONAL)
   #-------------------------
   if(skip_auto_screen){
     message("Skipping automatic candidate selection. All peaks will go to manual verification.")
@@ -164,7 +211,7 @@ ID_cardenolides <- function(
         if(nrow(in_range) == 0) next
 
         main_peak_area <- max(in_range$area)
-        maxima_filtered <- maxima[maxima$area >= main_peak_area*minor_peak_max, ]
+        maxima_filtered <- maxima[maxima$area >= main_peak_area * minor_peak_max, ]
         wavelengths <- maxima_filtered$wavelength
 
         if(length(wavelengths) == 1 &&
@@ -180,10 +227,9 @@ ID_cardenolides <- function(
 
   # Create candidate output with row names for R object
   candidate_output_df <- pktab[[1]][, candidate_peaks, drop = FALSE]
-  colnames(candidate_output_df) <- unlist(pktab[[2]][3, candidate_peaks])
+  colnames(candidate_output_df) <- rt_values[match(candidate_peaks, colnames(pktab[[1]]))]
 
   # Export CSV with SampleID as first column for file export
-  # FIXED: Removed row.names = FALSE from inside data.frame() call
   write.csv(data.frame(SampleID = rownames(candidate_output_df),
                        candidate_output_df, check.names = FALSE),
             file.path(output_dir, "auto_candidates.csv"), row.names = FALSE)
@@ -192,7 +238,7 @@ ID_cardenolides <- function(
   candidate_output <- candidate_output_df  # This has row names, not SampleID column
 
   #-------------------------
-  # STEP 7: MANUAL VERIFICATION
+  # STEP 9: MANUAL VERIFICATION
   #-------------------------
   if(do_manual_verification){
     verified_df <- data.frame(RT = numeric(), Cardenolide = character(),
@@ -233,7 +279,7 @@ ID_cardenolides <- function(
   }
 
   #-------------------------
-  # STEP 8: EXPORT FINAL CARDENOLIDE TABLE
+  # STEP 10: EXPORT FINAL CARDENOLIDE TABLE
   #-------------------------
   n1 <- names(pktab[[1]])[(names(pktab[[1]]) %in% final_peaks_names)]
   n2 <- names(pktab[[2]])[(names(pktab[[2]]) %in% final_peaks_names)]
@@ -243,7 +289,6 @@ ID_cardenolides <- function(
   colnames(final_tab_df) <- as.numeric(pktab[[2]][3, n2, drop = FALSE])
 
   # Export CSV with SampleID as first column for file export
-  # FIXED: Removed row.names = FALSE from inside data.frame() call
   write.csv(data.frame(SampleID = rownames(final_tab_df),
                        final_tab_df, check.names = FALSE),
             file.path(output_dir, "raw_cards.csv"), row.names = FALSE)

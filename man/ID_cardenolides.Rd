@@ -15,6 +15,8 @@ ID_cardenolides(
   do_manual_verification = FALSE,
   minor_peak_max = 0.25,
   skip_auto_screen = FALSE,
+  rt_range_min = 0,
+  rt_range_max = 40,
   new_ts = seq(0.01, 39.95, by = 0.01),
   new_lambdas = seq(200, 318, by = 2),
   n_cores = 4
@@ -37,7 +39,13 @@ ID_cardenolides(
 
 \item{do_manual_verification}{Whether to manually verify peaks (default FALSE)}
 
+\item{minor_peak_max}{Maximum size of minor peak (outside target lambda) for inclusion (default 0.25)}
+
 \item{skip_auto_screen}{Skip automatic screening and go straight to manual (default FALSE)}
+
+\item{rt_range_min}{Minimum retention time to consider (in minutes, default 0)}
+
+\item{rt_range_max}{Maximum retention time to consider (in minutes, default 40)}
 
 \item{new_ts}{Retention time sequence for preprocessing}
 
