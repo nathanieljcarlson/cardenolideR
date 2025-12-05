@@ -89,7 +89,7 @@ The function writes several CSV files to output_dir:
 ## Citation
 If you use cardenolideR in your work, please also cite chromatographR:
 
-Bass, E. (2022). chromatographR: Tools for Chromatographic Data Analysis in R. https://ethanbass.github.io/chromatographR/
+Bass, E. (2023). chromatographR: Chromatographic Data Analysis Toolset (version 0.7.3). http://doi.org/10.5281/zenodo.6944334
 
 Notes
 Use skip_auto_screen = TRUE to bypass automatic filtering and manually inspect all peaks.
