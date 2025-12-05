@@ -13,7 +13,8 @@ Imports:
     plotly,
     htmlwidgets,
     parallel,
-    utils
+    utils,
+    dplyr
 Remotes:
     ethanbass/chromatographR,
     ethanbass/chromConverter

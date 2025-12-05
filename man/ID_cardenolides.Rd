@@ -2,17 +2,18 @@
 % Please edit documentation in R/ID_cardenolides.R
 \name{ID_cardenolides}
 \alias{ID_cardenolides}
-\title{Identify cardenolides from LC-MS chromatograms}
+\title{Identify cardenolides from HPLC chromatograms}
 \usage{
 ID_cardenolides(
   input_dir = getwd(),
   output_dir = getwd(),
   format_in = "chemstation_uv",
   peak_lambda = 218,
-  peak_range = c(216, 240),
+  peak_range = c(216, 222),
   do_ptw = TRUE,
   do_baseline = FALSE,
   do_manual_verification = FALSE,
+  minor_peak_max = 0.25,
   skip_auto_screen = FALSE,
   new_ts = seq(0.01, 39.95, by = 0.01),
   new_lambdas = seq(200, 318, by = 2),
@@ -28,7 +29,7 @@ ID_cardenolides(
 
 \item{peak_lambda}{Wavelength to focus on (default 218)}
 
-\item{peak_range}{Range of absorbance maxima to filter candidate peaks (default 216-240)}
+\item{peak_range}{Range of absorbance maxima to filter candidate peaks (default 216-222)}
 
 \item{do_ptw}{Whether to perform PTW retention time warping (default TRUE)}
 
@@ -47,17 +48,17 @@ ID_cardenolides(
 \value{
 A list containing:
   \itemize{
-    \item all_peaks - table of all detected peaks
-    \item auto_candidates - table of automatically selected candidate peaks
-    \item final_peaks - table of peaks identified as cardenolides
+    \item all_peaks - data.frame of all detected peaks with sample IDs as row names
+    \item auto_candidates - data.frame of automatically selected candidate peaks with sample IDs as row names
+    \item final_peaks - data.frame of peaks identified as cardenolides with sample IDs as row names
     \item verified_df - manual verification data (if manual verification used)
   }
 }
 \description{
-Tools for detecting cardenolides or similar compounds from LC-MS data.
+Tools for detecting cardenolides or similar compounds from HPLC data.
 }
 \details{
-Identify cardenolides from LC-MS chromatograms
+Identify cardenolides from HPLC chromatograms
 
 Reads chromatograms, preprocesses them, optionally performs PTW warping,
 identifies candidate cardenolides based on absorption spectra, and allows

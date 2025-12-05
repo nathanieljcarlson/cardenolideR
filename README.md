@@ -1,3 +1,4 @@
+
 # cardenolideR
 
 
@@ -17,8 +18,8 @@ install.packages("devtools")
 
 # Install cardenolideR from GitHub
 devtools::install_github("nathanieljcarlson/cardenolideR", dependencies = TRUE)
-Dependencies (installed automatically if missing):
 ```
+
 ## Dependencies (installed automatically if missing)
 `chromatographR`
 
@@ -104,4 +105,3 @@ The function writes several CSV files to output_dir:
 If you use cardenolideR in your work, please also cite chromatographR:
 
 Bass, E. (2023). chromatographR: Chromatographic Data Analysis Toolset (version 0.7.3). http://doi.org/10.5281/zenodo.6944334
-
