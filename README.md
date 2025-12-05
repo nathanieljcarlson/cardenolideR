@@ -1,6 +1,6 @@
 # cardenolideR
 
-**An R package for identifying cardenolides from HPLC-DAD chromatogram files.**  
+**An R package for identifying cardenolides from HPLC chromatogram files.**  
 cardenolideR leverages [chromatographR](https://ethanbass.github.io/chromatographR/) to read, preprocess, and analyze chromatograms, allowing both automated and manual identification of candidate cardenolides.  
 
 ---
