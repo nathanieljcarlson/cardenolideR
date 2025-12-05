@@ -102,9 +102,9 @@ sample IDs as row names.
 `spectra_dir` – directory path containing exported HTML absorbance
 spectra.
 
-## Output Files The function writes several files to output_dir:
+## Output Files
 
-File Description:
+The function writes several files to output_dir:
 
 all_peaks.csv - Contains all detected peaks, with rows representing
 samples and columns representing peak areas (retention times as column
