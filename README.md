@@ -54,7 +54,7 @@ results <- ID_cardenolides(
 head(results$all_peaks)
 head(results$auto_candidates)
 head(results$final_peaks)
-
+```
 ## Function: `ID_cardenolides()`
 
 Reads chromatograms, preprocesses, optionally performs PTW retention time warping, screens peaks by absorption spectra, and allows manual verification with notes.
