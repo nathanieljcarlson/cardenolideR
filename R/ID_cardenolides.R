@@ -66,21 +66,9 @@ ID_cardenolides <- function(
     x <- chromatographR::baseline_correct(x)
   }
 
-  #-------------------------
-  # STEP 2: ADJUST TIME SEQUENCE BASED ON RT RANGE
-  #-------------------------
-  # Filter new_ts to only include times within rt_range
-  new_ts <- new_ts[new_ts >= rt_range_min & new_ts <= rt_range_max]
-
-  if(length(new_ts) < 2) {
-    stop("rt_range_min and rt_range_max result in too few time points. Please adjust your range.")
-  }
-
-  message("Using retention time range: ", rt_range_min, " to ", rt_range_max, " minutes")
-  message("Time sequence length: ", length(new_ts), " points")
 
   #-------------------------
-  # STEP 3: PREPROCESS
+  # STEP 2: PREPROCESS
   #-------------------------
   message("Preprocessing chromatograms...")
   dat.pr <- chromatographR::preprocess(x, new_ts, new_lambdas)
@@ -104,20 +92,6 @@ ID_cardenolides <- function(
   #-------------------------
   message("Reading peak reports...")
   pks <- chromConverter::read_peaklist(input_dir)
-
-  # Filter peaks based on retention time range
-  message("Filtering peaks to retention time range: ", rt_range_min, "-", rt_range_max, " minutes")
-  pks_filtered <- lapply(pks, function(sample_peaks) {
-    # Keep only peaks within the specified RT range
-    sample_peaks[sample_peaks$RT >= rt_range_min & sample_peaks$RT <= rt_range_max, ]
-  })
-
-  # Remove samples with no peaks after filtering
-  pks_filtered <- pks_filtered[sapply(pks_filtered, nrow) > 0]
-
-  if(length(pks_filtered) == 0) {
-    stop("No peaks found within the specified retention time range. Please adjust rt_range_min and rt_range_max.")
-  }
 
   #-------------------------
   # STEP 6: CORRECT PEAK RETENTION TIMES (OPTIONAL)
