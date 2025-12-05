@@ -98,10 +98,10 @@ ID_cardenolides <- function(
   #-------------------------
   if(do_ptw){
     message("Correcting peak retention times...")
-    pks.cor <- chromatographR::correct_peaks(pks_filtered, warping.models, chrom_list = dat.pr)
+    pks.cor <- chromatographR::correct_peaks(pks, warping.models, chrom_list = dat.pr)
     peaks_for_table <- pks.cor
   } else {
-    peaks_for_table <- pks_filtered
+    peaks_for_table <- pks
   }
 
   #-------------------------
