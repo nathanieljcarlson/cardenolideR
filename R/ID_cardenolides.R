@@ -45,7 +45,7 @@ ID_cardenolides <- function(
     do_manual_verification = FALSE,
     minor_peak_max = 0.25,
     skip_auto_screen = FALSE,
-    rt_range_min = 0,
+    rt_range_min = 4,
     rt_range_max = 40,
     new_ts = seq(.01, 39.95, by=.01),
     new_lambdas = seq(200, 318, by=2),
