@@ -1,4 +1,4 @@
-#' Identify cardenolides from LC-MS chromatograms
+#' Identify cardenolides from HPLC chromatograms
 #'
 #' Reads chromatograms, preprocesses them, optionally performs PTW warping,
 #' identifies candidate cardenolides based on absorption spectra, and allows

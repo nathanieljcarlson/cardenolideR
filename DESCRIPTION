@@ -1,9 +1,9 @@
 Package: cardenolideR
 Type: Package
-Title: Identify Cardenolides from LC-MS Data
+Title: Identify Cardenolides from HPLC Chromatograms
 Version: 0.1.0
 Authors@R: person("Nathaniel", "Carlson", email = "nathaniel.carlson@utah.edu", role = c("aut", "cre"))
-Description: Tools for identifying cardenolides or similar compounds from LC-MS chromatograms.
+Description: Tools for identifying cardenolides or similar compounds from HPLC chromatograms.
 License: MIT
 Encoding: UTF-8
 LazyData: true
