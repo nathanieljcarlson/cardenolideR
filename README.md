@@ -28,20 +28,32 @@ Dependencies (installed automatically if missing):
 
 `htmlwidgets`
 
-## Usage Example
+## Example Usage
+
+You can try `ID_cardenolides` with the example data included in this package:
 
 ```r
+# Load the package
 library(cardenolideR)
 
-# Identify cardenolides with manual verification
+# Find the path to the example data
+example_dir <- system.file("extdata", "example_chroms", package = "cardenolideR")
+
+# Create a temporary output folder
+output_dir <- tempdir()
+
+# Run the cardenolide identification
 results <- ID_cardenolides(
-  input_dir = "~/Desktop/2 species total cards/Block 1/K_hel",
-  output_dir = "~/Desktop/processed_cards",
+  input_dir = example_dir,
+  output_dir = output_dir,
   do_ptw = TRUE,
   do_manual_verification = TRUE
 )
-```
-This will generate CSV files in the specified `output_dir` and return a list of R objects containing peak tables and verification results.
+
+# Check the results
+head(results$all_peaks)
+head(results$auto_candidates)
+head(results$final_peaks)
 
 ## Function: `ID_cardenolides()`
 
